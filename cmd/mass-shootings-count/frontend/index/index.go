@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/diamondburned/mass-shootings-count/cmd/days-since/frontend"
+	"github.com/diamondburned/mass-shootings-count/cmd/mass-shootings-count/frontend"
 	"github.com/diamondburned/mass-shootings-count/gva"
 	"github.com/diamondburned/mass-shootings-count/internal/watcher"
 	"github.com/diamondburned/tmplutil"

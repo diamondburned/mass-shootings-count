@@ -8,8 +8,8 @@ import (
 	"os/signal"
 
 	"github.com/diamondburned/listener"
-	"github.com/diamondburned/mass-shootings-count/cmd/days-since/frontend"
-	"github.com/diamondburned/mass-shootings-count/cmd/days-since/frontend/index"
+	"github.com/diamondburned/mass-shootings-count/cmd/mass-shootings-count/frontend"
+	"github.com/diamondburned/mass-shootings-count/cmd/mass-shootings-count/frontend/index"
 	"github.com/diamondburned/mass-shootings-count/gva"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
