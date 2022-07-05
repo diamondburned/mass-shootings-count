@@ -6,6 +6,8 @@
 {{ end }}
 
 <title>{{ .Days }} {{ Plural .Days "day" "days" }} since last mass shooting</title>
+<meta property="og:type" content="website" />
+<meta property="og:title" content="It has been {{ .Days }} {{ Plural .Days "day" "days" }} since the last mass shooting." />
 
 <main>
 	<section id="days-since">
