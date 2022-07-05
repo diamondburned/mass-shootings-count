@@ -29,7 +29,7 @@ var TZ = func() *time.Location {
 	return l
 }()
 
-const datef = "January _2, 2006"
+const datef = "January 2, 2006"
 
 // Today returns the current Date.
 func Today() Date {

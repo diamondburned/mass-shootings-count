@@ -3,7 +3,6 @@ package gva
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/url"
 	"strconv"
 
@@ -100,7 +99,6 @@ func (s *Scraper) MassShootingsOnDate(ctx context.Context, date Date) ([]MassSho
 
 func MassShootingsOnDate(f func(i int) ([]MassShootingRecord, error), date Date) ([]MassShootingRecord, error) {
 	records := make([]MassShootingRecord, 0, 25)
-	log.Println("today =", date)
 
 	for i := 0; true; i++ {
 		page, err := f(i)

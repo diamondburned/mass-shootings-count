@@ -9,7 +9,7 @@ require (
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-test/deep v1.0.8
 	github.com/pkg/errors v0.9.1
-	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
+	github.com/timewasted/go-accept-headers v0.0.0-20130320203746-c78f304b1b09
 )
 
 require (

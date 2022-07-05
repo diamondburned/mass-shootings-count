@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 {{ template "styles" }}
+
+{{ if .Refresh }}
+<meta http-equiv="refresh" content="{{ .Refresh }}">
+{{ end }}
+
 <title>{{ .Days }} {{ Plural .Days "day" "days" }} since last mass shooting</title>
 
 <main>
@@ -22,11 +27,13 @@
 		<ul>
 			{{ range .Records }}
 			<li>
-				<h4><a href="{{ .IncidentURL }}">{{ .CityCounty }}, {{ .State }}</a></h4>
-				<p>
-					{{ .NoKilled }} dead, {{ .NoInjured }} injured,
-					at {{ .Address }}, {{ .CityCounty }}, {{ .State }}
-				</p>
+				<a href="{{ .IncidentURL }}">
+					<h4>{{ .CityCounty }}, {{ .State }}</h4>
+					<p>
+						{{ .NoKilled }} dead, {{ .NoInjured }} injured,
+						at {{ .Address }}, {{ .CityCounty }}, {{ .State }}.
+					</p>
+				</a>
 			</li>
 			{{ end }}
 		</ul>
@@ -34,7 +41,19 @@
 		<p class="empty">No mass shootings today.</p>
 		{{ end }}
 	</section>
-	<footer>
-		<p>Last updated <time datetime="{{ .LastUpdated.Format "2006-01-02" }}">{{ .LastUpdated.Format "January _2, 2006" }}</time></p>
-	</footer>
 </main>
+
+<footer>
+	<p><a href="https://github.com/diamondburned/mass-shootings-count">Source Code</a></p>
+	<p>
+		{{ if .Refresh }}
+		<a href="?refresh=">Stop</a>
+		{{ else }}
+		<a href="?refresh=60">Auto-refresh</a>
+		{{ end }}
+	</p>
+	<p>
+		<span>Taken from the <a href="https://www.gunviolencearchive.org/reports/mass-shooting">Gun Violence Archive</a>.</span>
+		<span>Last updated <time datetime="{{ .LastUpdated.Format "2006-01-02T15:04:05.999-07:00" }}">{{ .LastUpdated.Format "January 2, 2006 at 03:04 PM" }}</time>.</span>
+	</p>
+</footer>

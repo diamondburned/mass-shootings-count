@@ -18,9 +18,16 @@ type Watcher[T any] struct {
 }
 
 type value[T any] struct {
-	v T
-	e error
-	t time.Time
+	v  T
+	e  error
+	ok bool
+}
+
+func newUnfetchedValue[T any]() value[T] {
+	return value[T]{
+		e:  errors.New("watcher value unfetched"),
+		ok: false,
+	}
 }
 
 type WatcherOpts uint8
@@ -36,6 +43,7 @@ const (
 // value of renew.
 func Watch[T any](age time.Duration, opts WatcherOpts, fetch func() (T, error)) *Watcher[T] {
 	return &Watcher[T]{
+		value: newUnfetchedValue[T](),
 		fetch: fetch,
 		age:   age,
 		opts:  opts,
@@ -43,22 +51,15 @@ func Watch[T any](age time.Duration, opts WatcherOpts, fetch func() (T, error)) 
 }
 
 // Get gets the value, its error, and the time that it was last fetched.
-func (w *Watcher[T]) Get() (T, error, time.Time) {
+func (w *Watcher[T]) Get() (T, error) {
 	v := w.get()
-	return v.v, v.e, v.t
-}
-
-func (w *Watcher[T]) unfetchedValue() value[T] {
-	return value[T]{
-		e: errors.New("watcher value unfetched"),
-		t: time.Now(),
-	}
+	return v.v, v.e
 }
 
 func (w *Watcher[T]) get() value[T] {
 	if w.opts&WatchAllowStale != 0 {
 		if !w.mutex.TryRLock() {
-			return w.unfetchedValue()
+			return newUnfetchedValue[T]()
 		}
 	} else {
 		w.mutex.RLock()
@@ -88,8 +89,8 @@ func (w *Watcher[T]) get() value[T] {
 			w.mutex.Unlock()
 		}()
 
-		if old.t.IsZero() {
-			return w.unfetchedValue()
+		if !old.ok {
+			return newUnfetchedValue[T]()
 		}
 
 		return old
@@ -102,12 +103,11 @@ func (w *Watcher[T]) get() value[T] {
 func (w *Watcher[T]) renew() {
 	v, err := w.fetch()
 	w.value = value[T]{
-		v: v,
-		e: err,
-		t: time.Now(),
+		v:  v,
+		e:  err,
+		ok: true,
 	}
-
-	w.last = w.value.t
+	w.last = time.Now()
 }
 
 func (w *Watcher[T]) isValid() bool {

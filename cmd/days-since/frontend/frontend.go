@@ -3,6 +3,7 @@ package frontend
 import (
 	"embed"
 	"html/template"
+	"io"
 	"io/fs"
 	"net/http"
 	"os"
@@ -21,10 +22,23 @@ var Template = tmplutil.Templater{
 	FileSystem: baseFS,
 	Includes: map[string]string{
 		"styles": "components/styles.html",
+		"error":  "components/error.html",
 	},
 	Functions: template.FuncMap{
 		"Plural": Plural,
 	},
+	OnRenderFail: func(sub *tmplutil.Subtemplate, w io.Writer, err error) {
+		Template := sub.Templater()
+		Template.Subtemplate("error").Execute(w, err)
+	},
+}
+
+// ErrorHTML writes the error as HTML into w.
+func ErrorHTML(w http.ResponseWriter, code int, err error) {
+	if code != 0 {
+		w.WriteHeader(code)
+	}
+	Template.Subtemplate("error").Execute(w, err)
 }
 
 // OverrideTmpl overrides templates using the given path.
