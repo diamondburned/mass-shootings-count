@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+{{ template "styles" }}
+<title>{{ .Days }} {{ Plural .Days "day" "days" }} since last mass shooting</title>
+
+<main>
+	<section id="days-since">
+		<div class="sign">
+			<p class="top">It has been</p>
+			<p class="mid">
+				<span class="count">{{ .Days }}</span>
+				<span>{{ Plural .Days "day" "days" }}</span>
+			</p>
+			<p class="bot">since the last<br>mass shooting</p>
+		</div>
+		<div class="down-arrow" aria-description="Scroll down for more information.">
+			<span class="material-icons">expand_more</span>
+		</div>
+	</section>
+	<section id="shootings-today">
+		<h2>Mass Shootings Today</h2>
+		{{ if .Records }}
+		<ul>
+			{{ range .Records }}
+			<li>
+				<h4><a href="{{ .IncidentURL }}">{{ .CityCounty }}, {{ .State }}</a></h4>
+				<p>
+					{{ .NoKilled }} dead, {{ .NoInjured }} injured,
+					at {{ .Address }}, {{ .CityCounty }}, {{ .State }}
+				</p>
+			</li>
+			{{ end }}
+		</ul>
+		{{ else }}
+		<p class="empty">No mass shootings today.</p>
+		{{ end }}
+	</section>
+	<footer>
+		<p>Last updated <time datetime="{{ .LastUpdated.Format "2006-01-02" }}">{{ .LastUpdated.Format "January _2, 2006" }}</time></p>
+	</footer>
+</main>
