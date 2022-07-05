@@ -28,7 +28,7 @@
 		<div>
 			<p>
 				<span class="count">{{ len .Records }}</span>
-				Mass Shootings
+				{{ Plural (len .Records) "Shooting" "Shootings" }}
 			</p>
 			<p>
 				<span class="count">{{ .TotalKilled }}</span>
