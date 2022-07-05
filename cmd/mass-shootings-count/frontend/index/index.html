@@ -23,25 +23,27 @@
 			<span class="material-icons">expand_more</span>
 		</div>
 	</section>
+
+	<h1>{{ .LastUpdated.Format "January 2, 2006" }}</h1>
 	<section id="statistics">
 		<h2>Statistics</h2>
 		<div>
 			<p>
 				<span class="count">{{ len .Records }}</span>
-				{{ Plural (len .Records) "Shooting" "Shootings" }}
+				<span class="sub">{{ Plural (len .Records) "Shooting" "Shootings" }}</span>
 			</p>
 			<p>
 				<span class="count">{{ .TotalKilled }}</span>
-				Dead
+				<span class="sub">Dead</span>
 			</p>
 			<p>
 				<span class="count">{{ .TotalInjured }}</span>
-				Injured
+				<span class="sub">Injured</span>
 			</p>
 		</div>
 	</section>
 	<section id="shootings-today">
-		<h2>Mass Shootings Today</h2>
+		<h2>Mass Shootings</h2>
 		{{ if .Records }}
 		<ul>
 			{{ range .Records }}
@@ -73,6 +75,6 @@
 	</p>
 	<p>
 		<span>Taken from the <a href="https://www.gunviolencearchive.org/reports/mass-shooting">Gun Violence Archive</a>.</span>
-		<span>Last updated <time datetime="{{ .LastUpdated.Format "2006-01-02T15:04:05.999-07:00" }}">{{ .LastUpdated.Format "January 2, 2006 at 03:04 PM" }}</time>.</span>
+		<span>Last updated <time datetime="{{ .LastUpdated.Format "2006-01-02T15:04:05.999-07:00" }}">{{ .LastUpdated.Format "January 2, 2006 at 03:04 PM MST" }}</time>.</span>
 	</p>
 </footer>
