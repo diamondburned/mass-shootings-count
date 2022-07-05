@@ -104,7 +104,9 @@ func (h handler) index(w http.ResponseWriter, r *http.Request) {
 func (h handler) indexHTML(w http.ResponseWriter, r *http.Request) {
 	var responseData struct {
 		RenderData
-		Refresh int // seconds
+		TotalInjured int
+		TotalKilled  int
+		Refresh      int // seconds
 	}
 
 	var err error
@@ -118,6 +120,11 @@ func (h handler) indexHTML(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	if refresh, err := strconv.Atoi(q.Get("refresh")); err == nil {
 		responseData.Refresh = refresh
+	}
+
+	for _, rec := range responseData.Records {
+		responseData.TotalKilled += rec.NoKilled
+		responseData.TotalInjured += rec.NoInjured
 	}
 
 	index.Execute(w, responseData)

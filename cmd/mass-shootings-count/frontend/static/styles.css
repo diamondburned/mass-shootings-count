@@ -15,6 +15,14 @@ h2 {
 	margin: 1.5em;
 }
 
+h2 {
+	text-align: center;
+}
+
+main > *:last-child {
+	margin-bottom: 1em;
+}
+
 #days-since {
 	width:  100%;
 	height: 100vh;
@@ -73,10 +81,6 @@ h2 {
 	margin-bottom: 64px;
 }
 
-#shootings-today h2 {
-	text-align: center;
-}
-
 #shootings-today ul {
 	list-style-type: none;
 	padding: 0;
@@ -111,6 +115,32 @@ h2 {
 	opacity: 0.5;
 }
 
+#statistics > div {
+	display: flex;
+	justify-content: space-around;
+}
+
+#statistics > div > p {
+	flex: 1;
+	margin-top: 0;
+	height: 128px;
+	font-size: 1.15em;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+#statistics > div > p:not(:first-child):not(:last-child) {
+	margin-left:  1em;
+	margin-right: 1em;
+}
+
+#statistics span.count {
+	font-size: 2em;
+}
+
 footer {
 	border-top: 1px solid gray;
 	color: gray;
@@ -132,6 +162,10 @@ p.error {
 }
 
 @media only screen and (max-width: 600px) {
+	#statistics > div {
+		flex-direction: column;
+	}
+
 	footer {
 		display: block;
 	}

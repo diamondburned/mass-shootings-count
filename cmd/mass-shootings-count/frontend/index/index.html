@@ -23,6 +23,23 @@
 			<span class="material-icons">expand_more</span>
 		</div>
 	</section>
+	<section id="statistics">
+		<h2>Statistics</h2>
+		<div>
+			<p>
+				<span class="count">{{ len .Records }}</span>
+				Mass Shootings
+			</p>
+			<p>
+				<span class="count">{{ .TotalKilled }}</span>
+				Dead
+			</p>
+			<p>
+				<span class="count">{{ .TotalInjured }}</span>
+				Injured
+			</p>
+		</div>
+	</section>
 	<section id="shootings-today">
 		<h2>Mass Shootings Today</h2>
 		{{ if .Records }}
