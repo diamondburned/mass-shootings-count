@@ -92,16 +92,21 @@ func (s *Scraper) MassShootingsToday(ctx context.Context) ([]MassShootingRecord,
 // MassShootingsOnDate returns a list of mass shooting records for the given
 // date.
 func (s *Scraper) MassShootingsOnDate(ctx context.Context, date Date) ([]MassShootingRecord, error) {
-	return MassShootingsOnDate(func(i int) ([]MassShootingRecord, error) {
-		return s.MassShootings(ctx, i)
-	}, date)
+	return MassShootingsOnDate(ctx, s, date)
 }
 
-func MassShootingsOnDate(f func(i int) ([]MassShootingRecord, error), date Date) ([]MassShootingRecord, error) {
+// MassShootingsScraper describes Scraper's MassShootings getter.
+type MassShootingsScraper interface {
+	MassShootings(ctx context.Context, i int) ([]MassShootingRecord, error)
+}
+
+// MassShootingsOnDate fetches the list of all mass shooting records within the
+// given day by automatically paginating the getter.
+func MassShootingsOnDate(ctx context.Context, scraper MassShootingsScraper, date Date) ([]MassShootingRecord, error) {
 	records := make([]MassShootingRecord, 0, 25)
 
 	for i := 0; true; i++ {
-		page, err := f(i)
+		page, err := scraper.MassShootings(ctx, i)
 		if err != nil {
 			return nil, errors.Wrapf(err, "cannot get page %d", i)
 		}

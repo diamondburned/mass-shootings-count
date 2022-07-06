@@ -27,9 +27,42 @@ const watchFlags = watcher.WatchAllowStale
 
 const Day = 24 * time.Hour
 
+type cachedScraper struct {
+	scraper *gva.Scraper
+	records [][]gva.MassShootingRecord
+}
+
+func cacheScraper(scraper *gva.Scraper) *cachedScraper {
+	return &cachedScraper{
+		scraper: scraper,
+	}
+}
+
+func (s *cachedScraper) MassShootings(ctx context.Context, i int) ([]gva.MassShootingRecord, error) {
+	if len(s.records) < i {
+		return s.records[i], nil
+	}
+
+	records, err := s.scraper.MassShootings(ctx, i)
+	if err != nil {
+		return nil, err
+	}
+
+	if i == len(s.records) {
+		s.records = append(s.records, records)
+	}
+
+	return records, nil
+}
+
 func Mount(scraper *gva.Scraper) http.Handler {
 	renderedData := watcher.Watch(2*time.Minute, watchFlags, func() (RenderData, error) {
-		records, err := scraper.MassShootings(context.Background(), 0)
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+
+		scraper := cacheScraper(scraper)
+
+		records, err := scraper.MassShootings(ctx, 0)
 		if err != nil {
 			return RenderData{}, err
 		}
@@ -38,14 +71,7 @@ func Mount(scraper *gva.Scraper) http.Handler {
 			return RenderData{}, errors.New("no records found")
 		}
 
-		get := func(i int) ([]gva.MassShootingRecord, error) {
-			if i == 0 {
-				return records, nil
-			}
-			return scraper.MassShootings(context.Background(), i)
-		}
-
-		recordsToday, err := gva.MassShootingsOnDate(get, gva.Today())
+		recordsToday, err := gva.MassShootingsOnDate(ctx, scraper, gva.Today())
 		if err != nil {
 			return RenderData{}, err
 		}
@@ -53,8 +79,15 @@ func Mount(scraper *gva.Scraper) http.Handler {
 		now := time.Now()
 		latestIncident := records[0].IncidentDate.AsTime(now)
 
+		// Require a full day without any incidents in order for it to be
+		// counted.
+		days := int(now.Sub(latestIncident)/Day) - 1
+		if days < 0 {
+			days = 0
+		}
+
 		return RenderData{
-			Days:        int(now.Sub(latestIncident) / Day),
+			Days:        days,
 			Records:     recordsToday,
 			LastUpdated: time.Now(),
 		}, nil
