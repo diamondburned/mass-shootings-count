@@ -5,17 +5,17 @@
 <meta http-equiv="refresh" content="{{ .Refresh }}">
 {{ end }}
 
-<title>{{ .Days }} {{ Plural .Days "day" "days" }} since last mass shooting</title>
+<title>{{ .DaysSince }} {{ Plural .DaysSince "day" "days" }} since last mass shooting</title>
 <meta property="og:type" content="website" />
-<meta property="og:title" content="It has been {{ .Days }} {{ Plural .Days "day" "days" }} since the last mass shooting." />
+<meta property="og:title" content="It has been {{ .DaysSince }} {{ Plural .DaysSince "day" "days" }} since the last mass shooting." />
 
 <main>
 	<section id="days-since">
 		<div class="sign">
 			<p class="top">It has been</p>
 			<p class="mid">
-				<span class="count">{{ .Days }}</span>
-				<span>{{ Plural .Days "day" "days" }}</span>
+				<span class="count">{{ .DaysSince }}</span>
+				<span>{{ Plural .DaysSince "day" "days" }}</span>
 			</p>
 			<p class="bot">since the last<br>mass shooting</p>
 		</div>
@@ -24,44 +24,51 @@
 		</div>
 	</section>
 
-	<h1>{{ .LastUpdated.Format "January 2, 2006" }}</h1>
-	<section id="statistics">
-		<h2>Statistics</h2>
-		<div>
-			<p>
-				<span class="count">{{ len .Records }}</span>
-				<span class="sub">{{ Plural (len .Records) "Shooting" "Shootings" }}</span>
-			</p>
-			<p>
-				<span class="count">{{ .TotalKilled }}</span>
-				<span class="sub">Dead</span>
-			</p>
-			<p>
-				<span class="count">{{ .TotalInjured }}</span>
-				<span class="sub">Injured</span>
-			</p>
+	{{ range .Days }}
+	<section id="{{ ToLower .Name }}">
+		<h1 class="day-heading">
+			{{ .Name }}<br>
+			<sub>{{ .Time.Format "January 2, 2006" }}</sub>
+		</h1>
+		<div class="statistics">
+			<h2>Statistics</h2>
+			<div>
+				<p>
+					<span class="count">{{ len .Records }}</span>
+					<span class="sub">{{ Plural (len .Records) "Shooting" "Shootings" }}</span>
+				</p>
+				<p>
+					<span class="count">{{ .TotalKilled }}</span>
+					<span class="sub">Dead</span>
+				</p>
+				<p>
+					<span class="count">{{ .TotalInjured }}</span>
+					<span class="sub">Injured</span>
+				</p>
+			</div>
+		</div>
+		<div class="shootings-today">
+			<h2>Mass Shootings</h2>
+			{{ if .Records }}
+			<ul>
+				{{ range .Records }}
+				<li>
+					<a href="{{ .IncidentURL }}">
+						<h4>{{ .CityCounty }}, {{ .State }}</h4>
+						<p>
+							{{ .NoKilled }} dead, {{ .NoInjured }} injured,
+							at {{ .Address }}, {{ .CityCounty }}, {{ .State }}.
+						</p>
+					</a>
+				</li>
+				{{ end }}
+			</ul>
+			{{ else }}
+			<p class="empty">No mass shootings {{ ToLower .Name }}.</p>
+			{{ end }}
 		</div>
 	</section>
-	<section id="shootings-today">
-		<h2>Mass Shootings</h2>
-		{{ if .Records }}
-		<ul>
-			{{ range .Records }}
-			<li>
-				<a href="{{ .IncidentURL }}">
-					<h4>{{ .CityCounty }}, {{ .State }}</h4>
-					<p>
-						{{ .NoKilled }} dead, {{ .NoInjured }} injured,
-						at {{ .Address }}, {{ .CityCounty }}, {{ .State }}.
-					</p>
-				</a>
-			</li>
-			{{ end }}
-		</ul>
-		{{ else }}
-		<p class="empty">No mass shootings today.</p>
-		{{ end }}
-	</section>
+	{{ end }}
 </main>
 
 <footer>

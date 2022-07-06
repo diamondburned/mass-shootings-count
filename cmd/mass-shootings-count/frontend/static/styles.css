@@ -16,6 +16,16 @@ h2 {
 	text-align: center;
 }
 
+h1 {
+	font-size: 1.75em;
+}
+
+h1.day-heading sub {
+	font-size: 0.75em;
+	font-weight: lighter;
+	opacity: 0.75;
+}
+
 main > *:last-child {
 	margin-bottom: 1em;
 }
@@ -74,17 +84,22 @@ main > *:last-child {
 	font-size: 64px;
 }
 
-#shootings-today {
+#today,
+#yesterday {
+	border-top: 1px solid gray;
+}
+
+.shootings-today {
 	margin-bottom: 64px;
 }
 
-#shootings-today ul {
+.shootings-today ul {
 	list-style-type: none;
 	padding: 0;
 	margin-top: -0.5em;
 }
 
-#shootings-today li > a {
+.shootings-today li > a {
 	text-decoration: none;
 	color: inherit;
 	padding: 0.5em 1em;
@@ -95,34 +110,34 @@ main > *:last-child {
 	transition: linear 65ms all;
 }
 
-#shootings-today li > a:hover {
+.shootings-today li > a:hover {
 	background-color: rgba(0, 0, 0, 0.05);
 }
 
-#shootings-today li > a > * {
+.shootings-today li > a > * {
 	margin: 0.35em 0;
 }
 
-#shootings-today h4 {
+.shootings-today h4 {
 	font-weight: 600;
 	font-size: 1.2em;
 }
 
-#shootings-today li > a > p {
+.shootings-today li > a > p {
 	opacity: 0.75;
 }
 
-#shootings-today p.empty {
+.shootings-today p.empty {
 	text-align: center;
-	opacity: 0.5;
+	opacity: 0.75;
 }
 
-#statistics > div {
+.statistics > div {
 	display: flex;
 	justify-content: space-around;
 }
 
-#statistics > div > p {
+.statistics > div > p {
 	flex: 1;
 	margin: 0;
 	height: 128px;
@@ -134,12 +149,12 @@ main > *:last-child {
 	justify-content: center;
 }
 
-#statistics > div > p:not(:first-child):not(:last-child) {
+.statistics > div > p:not(:first-child):not(:last-child) {
 	margin-left:  1em;
 	margin-right: 1em;
 }
 
-#statistics span.count {
+.statistics span.count {
 	font-size: 2em;
 }
 
@@ -164,11 +179,11 @@ p.error {
 }
 
 @media only screen and (max-width: 600px) {
-	#statistics > div {
+	.statistics > div {
 		flex-direction: column;
 	}
 
-	#statistics > div > p {
+	.statistics > div > p {
 		margin: 0;
 		margin-bottom: 2em;
 	}

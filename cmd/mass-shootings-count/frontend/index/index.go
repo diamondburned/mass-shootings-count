@@ -35,6 +35,7 @@ type cachedScraper struct {
 func cacheScraper(scraper *gva.Scraper) *cachedScraper {
 	return &cachedScraper{
 		scraper: scraper,
+		records: make([][]gva.MassShootingRecord, 0, 2),
 	}
 }
 
@@ -71,9 +72,20 @@ func Mount(scraper *gva.Scraper) http.Handler {
 			return RenderData{}, errors.New("no records found")
 		}
 
-		recordsToday, err := gva.MassShootingsOnDate(ctx, scraper, gva.Today())
+		today := gva.Today()
+		yesterday := today.Add(-Day)
+
+		var data RenderData
+		data.LastUpdated = time.Now()
+
+		data.Records.Today, err = gva.MassShootingsOnDate(ctx, scraper, today)
 		if err != nil {
-			return RenderData{}, err
+			return data, err
+		}
+
+		data.Records.Yesterday, err = gva.MassShootingsOnDate(ctx, scraper, yesterday)
+		if err != nil {
+			return data, err
 		}
 
 		now := time.Now()
@@ -81,16 +93,12 @@ func Mount(scraper *gva.Scraper) http.Handler {
 
 		// Require a full day without any incidents in order for it to be
 		// counted.
-		days := int(now.Sub(latestIncident)/Day) - 1
-		if days < 0 {
-			days = 0
+		data.DaysSince = int(now.Sub(latestIncident)/Day) - 1
+		if data.DaysSince < 0 {
+			data.DaysSince = 0
 		}
 
-		return RenderData{
-			Days:        days,
-			Records:     recordsToday,
-			LastUpdated: time.Now(),
-		}, nil
+		return data, nil
 	})
 
 	h := handler{
@@ -111,9 +119,12 @@ func Mount(scraper *gva.Scraper) http.Handler {
 }
 
 type RenderData struct {
-	Days        int
-	Records     []gva.MassShootingRecord
+	DaysSince   int
 	LastUpdated time.Time
+	Records     struct {
+		Today     []gva.MassShootingRecord
+		Yesterday []gva.MassShootingRecord
+	}
 }
 
 func (h handler) index(w http.ResponseWriter, r *http.Request) {
@@ -135,16 +146,23 @@ func (h handler) index(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h handler) indexHTML(w http.ResponseWriter, r *http.Request) {
-	var responseData struct {
-		RenderData
+	type day struct {
+		Name         string
+		Time         time.Time
+		Records      []gva.MassShootingRecord
 		TotalInjured int
 		TotalKilled  int
-		Refresh      int // seconds
+	}
+
+	var data struct {
+		RenderData
+		Days    [2]day
+		Refresh int // seconds
 	}
 
 	var err error
 
-	responseData.RenderData, err = h.renderedData.Get()
+	data.RenderData, err = h.renderedData.Get()
 	if err != nil {
 		frontend.ErrorHTML(w, 503, err)
 		return
@@ -152,15 +170,30 @@ func (h handler) indexHTML(w http.ResponseWriter, r *http.Request) {
 
 	q := r.URL.Query()
 	if refresh, err := strconv.Atoi(q.Get("refresh")); err == nil {
-		responseData.Refresh = refresh
+		data.Refresh = refresh
 	}
 
-	for _, rec := range responseData.Records {
-		responseData.TotalKilled += rec.NoKilled
-		responseData.TotalInjured += rec.NoInjured
+	data.Days = [2]day{
+		{
+			Name:    "Today",
+			Time:    data.LastUpdated,
+			Records: data.Records.Today,
+		},
+		{
+			Name:    "Yesterday",
+			Time:    data.LastUpdated.Add(-Day),
+			Records: data.Records.Yesterday,
+		},
 	}
 
-	index.Execute(w, responseData)
+	for i, day := range data.Days {
+		for _, rec := range day.Records {
+			data.Days[i].TotalKilled += rec.NoKilled
+			data.Days[i].TotalInjured += rec.NoInjured
+		}
+	}
+
+	index.Execute(w, data)
 }
 
 func (h handler) indexJSON(w http.ResponseWriter, r *http.Request) {

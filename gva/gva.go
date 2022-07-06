@@ -63,15 +63,23 @@ func (d Date) AsTime(clock time.Time) time.Time {
 	)
 }
 
+// Add returns d + duration. If duration is less than 24h (1d), then it does
+// nothing.
+func (d Date) Add(duration time.Duration) Date {
+	return Date{t: withoutClock(d.t.Add(duration))}
+}
+
 // Eq returns true if d == other.
 func (d Date) Eq(other Date) bool {
 	return withoutClock(d.t).Equal(withoutClock(other.t))
 }
 
+// Before returns true if d < other.
 func (d Date) Before(other Date) bool {
 	return withoutClock(d.t).Before(withoutClock(other.t))
 }
 
+// After returns true if d > other.
 func (d Date) After(other Date) bool {
 	return withoutClock(d.t).After(withoutClock(other.t))
 }

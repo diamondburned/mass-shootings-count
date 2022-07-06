@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/diamondburned/tmplutil"
 )
@@ -25,7 +26,9 @@ var Template = tmplutil.Templater{
 		"error":  "components/error.html",
 	},
 	Functions: template.FuncMap{
-		"Plural": Plural,
+		"Plural":  Plural,
+		"ToLower": strings.ToLower,
+		"ToUpper": strings.ToUpper,
 	},
 	OnRenderFail: func(sub *tmplutil.Subtemplate, w io.Writer, err error) {
 		Template := sub.Templater()
