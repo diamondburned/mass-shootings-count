@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/pkg/errors"
@@ -128,13 +129,30 @@ func MassShootingsOnDate(ctx context.Context, scraper MassShootingsScraper, date
 			break
 		}
 
-		if len(records) > 0 && !page[len(page)-1].IncidentDate.Eq(date) {
-			// The last record does not match the date and we already have
-			// records, meaning that the date only gets older after this.
-			// Break out of the loop; there's nothing else.
+		if page[len(page)-1].IncidentDate.Before(date) {
+			// The last record happened before this date, meaning that the date
+			// only gets older after this. Break out of the loop; there's
+			// nothing else.
 			break
+		}
+
+		// Wait for a bit.
+		if err := sleep(ctx, 500*time.Millisecond); err != nil {
+			return nil, err
 		}
 	}
 
 	return records, nil
+}
+
+func sleep(ctx context.Context, d time.Duration) error {
+	t := time.NewTimer(d)
+	defer t.Stop()
+
+	select {
+	case <-t.C:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
