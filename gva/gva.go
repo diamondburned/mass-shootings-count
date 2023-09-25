@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"strings"
 	"time"
@@ -120,12 +121,20 @@ type Scraper struct {
 	BaseURL *url.URL
 }
 
-var baseURL, _ = url.Parse("https://gunviolencearchive.org")
+var baseURL, _ = url.Parse("https://www.gunviolencearchive.org")
 
 // NewScraper creates a new Scraper.
 func NewScraper() *Scraper {
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		panic(err)
+	}
+
+	client := *http.DefaultClient
+	client.Jar = jar
+
 	return &Scraper{
-		Client:  http.DefaultClient,
+		Client:  &client,
 		BaseURL: baseURL,
 	}
 }
@@ -186,6 +195,9 @@ func (s *Scraper) getHTML(ctx context.Context, path string, q url.Values) (*goqu
 		return nil, errors.Wrap(err, "cannot make request")
 	}
 
+	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0")
+	req.Header.Set("DNT", "1")
+
 	resp, err := s.Client.Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot do request")
@@ -193,6 +205,10 @@ func (s *Scraper) getHTML(ctx context.Context, path string, q url.Values) (*goqu
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		// b, err := io.ReadAll(resp.Body)
+		// if err == nil {
+		// 	log.Println(string(b))
+		// }
 		return nil, fmt.Errorf("server returned unexpected status %s", resp.Status)
 	}
 
