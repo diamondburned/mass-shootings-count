@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -57,7 +58,7 @@ func (s *cachedScraper) MassShootings(ctx context.Context, i int) ([]gva.MassSho
 }
 
 func Mount(scraper *gva.Scraper) http.Handler {
-	renderedData := watcher.Watch(2*time.Minute, watchFlags, func() (RenderData, error) {
+	renderedData := watcher.Watch(5*time.Minute, watchFlags, func() (RenderData, error) {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 		defer cancel()
 
@@ -65,7 +66,7 @@ func Mount(scraper *gva.Scraper) http.Handler {
 
 		records, err := scraper.MassShootings(ctx, 0)
 		if err != nil {
-			return RenderData{}, err
+			return RenderData{}, fmt.Errorf("failed to get records: %w", err)
 		}
 
 		if len(records) == 0 {
@@ -80,12 +81,12 @@ func Mount(scraper *gva.Scraper) http.Handler {
 
 		data.Records.Today, err = gva.MassShootingsOnDate(ctx, scraper, today)
 		if err != nil {
-			return data, err
+			return data, fmt.Errorf("failed to get records for today: %w", err)
 		}
 
 		data.Records.Yesterday, err = gva.MassShootingsOnDate(ctx, scraper, yesterday)
 		if err != nil {
-			return data, err
+			return data, fmt.Errorf("failed to get records for yesterday: %w", err)
 		}
 
 		now := time.Now()
