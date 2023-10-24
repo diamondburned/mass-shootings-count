@@ -181,6 +181,7 @@ func (s *Scraper) getHTML(ctx context.Context, path string, q url.Values) (*goqu
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url.String(), nil)
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36")
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot make request")
 	}
