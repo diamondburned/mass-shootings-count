@@ -14,7 +14,7 @@ import (
 func TestScraperMassShootings(t *testing.T) {
 	s := NewScraper()
 	s.Client.Transport = roundTripFunc(func(r *http.Request) (*http.Response, error) {
-		if r.URL.String() != "https://gunviolencearchive.org/reports/mass-shooting?page=0" {
+		if r.URL.String() != "https://www.gunviolencearchive.org/reports/mass-shooting?page=0" {
 			return newResponse(r, 404, nil), nil
 		}
 		body := mustTestData(t, "testdata/mass-shooting.html")
@@ -26,18 +26,12 @@ func TestScraperMassShootings(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	unmarshalEq[[]MassShootingRecord](t, "testdata/mass-shooting.json", records)
-}
-
-func unmarshalEq[T any](t *testing.T, jsonFile string, got any) {
-	var expect T
-
-	err := json.NewDecoder(mustTestData(t, jsonFile)).Decode(&expect)
-	if err != nil {
+	var expect []MassShootingRecord
+	if err := json.NewDecoder(mustTestData(t, "testdata/mass-shooting.json")).Decode(&expect); err != nil {
 		t.Fatal("cannot unmarshal json test data:", err)
 	}
 
-	for diff := range deep.Equal(got, expect) {
+	if diff := deep.Equal(records, expect); diff != nil {
 		t.Error(diff)
 	}
 }
