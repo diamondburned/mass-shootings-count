@@ -190,12 +190,11 @@ func (s *Scraper) getHTML(ctx context.Context, path string, q url.Values) (*goqu
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url.String(), nil)
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36")
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot make request")
 	}
 
-	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36")
 	req.Header.Set("DNT", "1")
 
 	resp, err := s.Client.Do(req)
@@ -205,10 +204,6 @@ func (s *Scraper) getHTML(ctx context.Context, path string, q url.Values) (*goqu
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		// b, err := io.ReadAll(resp.Body)
-		// if err == nil {
-		// 	log.Println(string(b))
-		// }
 		return nil, fmt.Errorf("server returned unexpected status %s", resp.Status)
 	}
 
