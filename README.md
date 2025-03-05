@@ -1,6 +1,6 @@
 # mass-shootings-count
 
-https://shootings.diamondb.xyz/
+[shootings.libdb.so](https://shootings.libdb.so)
 
 Website that shows the number of days since the last mass shooting in the United
 States. It is made to raise awareness.
